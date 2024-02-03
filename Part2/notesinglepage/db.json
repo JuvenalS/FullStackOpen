@@ -1,18 +1,24 @@
 {
   "notes": [
     {
-      "id": 1,
+      "id": "1",
       "content": "HTML is easy",
-      "inportant": true
+      "important": true
     },
     {
-      "id": 2,
+      "id": "2",
       "content": "Browser can execute only JavaScript",
-      "inportant": false
+      "important": false
     },
     {
-      "id": 3,
-      "content": "GET and POST are the most important methods of HTTP protocol"
+      "id": "3",
+      "content": "GET and POST are the most important methods of HTTP protocol",
+      "important": false
+    },
+    {
+      "id": 4,
+      "content": "Post is used to create new resources",
+      "important": true
     }
   ]
 }
