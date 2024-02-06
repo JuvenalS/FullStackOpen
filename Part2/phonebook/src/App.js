@@ -1,15 +1,21 @@
 import { useState, useEffect } from "react";
 import personService from "./services/phones";
+import Error from "./components/Error";
+import Success from "./components/Success";
 
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+
+import "./index.css";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [searchName, setSearchName] = useState("");
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
 
   useEffect(() => {
     personService.getAll().then((initialPhones) => {
@@ -27,7 +33,10 @@ const App = () => {
     );
 
     if (nameExists && phoneExists) {
-      alert(`${newName} is already added to phonebook`);
+      setErrorMessage(`${newName} is already added to the phonebook.`);
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
       setNewName("");
       setNewNumber("");
     } else if (nameExists && !phoneExists) {
@@ -37,15 +46,30 @@ const App = () => {
         )
       ) {
         const person = persons.find((n) => n.name === newName);
-        console.log(person);
         const changedNumber = { ...person, number: newNumber };
-        personService.update(person.id, changedNumber).then(() => {
-          setPersons(
-            persons.map((p) => (p.id !== person.id ? p : changedNumber))
-          );
-          setNewName("");
-          setNewNumber("");
-        });
+        personService
+          .update(person.id, changedNumber)
+          .then(() => {
+            setPersons(
+              persons.map((p) => (p.id !== person.id ? p : changedNumber))
+            );
+            setSuccessMessage("Number updated successfully.");
+            setTimeout(() => {
+              setSuccessMessage(null);
+            }, 5000);
+            setNewName("");
+            setNewNumber("");
+          })
+          .catch((error) => {
+            setErrorMessage(
+              `Information of ${person.name} has already been removed from server`
+            );
+            setTimeout(() => {
+              setErrorMessage(null);
+            }, 5000);
+            setNewName("");
+            setNewNumber("");
+          });
       }
     } else {
       const personObject = {
@@ -56,6 +80,10 @@ const App = () => {
 
       personService.create(personObject).then((returnedPerson) => {
         setPersons(persons.concat(returnedPerson));
+        setSuccessMessage("Person added successfully.");
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 5000);
         setNewName("");
         setNewNumber("");
       });
@@ -70,9 +98,16 @@ const App = () => {
         .del(id)
         .then(() => {
           setPersons(persons.filter((p) => p.id !== id));
+          setSuccessMessage("Person deleted successfully.");
+          setTimeout(() => {
+            setSuccessMessage(null);
+          }, 5000);
         })
         .catch((error) => {
-          console.error("Error deleting person:", error);
+          setErrorMessage("Error deleting person.");
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 5000);
         });
     }
   };
@@ -100,6 +135,8 @@ const App = () => {
   return (
     <div>
       <h1>Phonebook</h1>
+      <Error message={errorMessage} />
+      <Success message={successMessage} />
 
       <Filter value={searchName} onChange={handleSearchNameChange} />
 
