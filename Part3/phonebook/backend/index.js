@@ -12,7 +12,7 @@ let persons = [
   {
     id: 2,
     name: "Ada Lovelace",
-    number: "39-43-234345",
+    number: "39-44-5323523",
   },
   {
     id: 3,
@@ -21,12 +21,20 @@ let persons = [
   },
   {
     id: 4,
-    name: "Mary Poppendieck",
+    name: "Mary poppendieck",
     number: "39-23-6423122",
   },
 ];
 
+// const requestLogger = (request, response, next) => {
+//   console.log("Method:", request.method);
+//   console.log("Path:", request.path);
+//   console.log("Body:", request.body);
+//   console.log("---");
+//   next();
+// };
 app.use(express.json());
+// app.use(requestLogger);
 app.use(
   morgan(function (tokens, request, response) {
     return [
@@ -42,8 +50,26 @@ app.use(
   })
 );
 
-const unknownEndPoint = (request, response) => {
+const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: "unknown endpoint" });
+};
+
+const getDataAndHourCurrent = () => {
+  const dateAndHours = new Date();
+
+  const dateFormated = dateAndHours.toDateString();
+  const hoursFormated = dateAndHours.toTimeString().split(" ")[0];
+  const timeZone = dateAndHours.toTimeString().split(" ")[1];
+
+  return `${dateFormated} ${hoursFormated} ${timeZone} (${
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  })`;
+};
+
+const randomGenerateId = () => {
+  min = Math.ceil(1);
+  max = Math.floor(1000000);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 app.get("/", (request, response) => {
@@ -61,16 +87,27 @@ app.get("/api/persons/:id", (request, response) => {
   if (person) {
     response.json(person);
   } else {
-    response.status(404).send("NOT FOUND");
+    response.status(404).send("Not Found");
   }
 });
 
-const generateId = () => {
-  const maxId = persons.length > 0 ? Math.max(...persons.map((n) => n.id)) : 0;
-  return maxId + 1;
-};
+app.get("/info", (request, response) => {
+  const numberEntriesPhonebook = persons.length;
+  const localDateFormat = getDataAndHourCurrent();
 
-app.post("/api/persons/", (request, response) => {
+  response.send(`
+      <h1>Phonebook has info for ${numberEntriesPhonebook} people</h1>
+      <p>${localDateFormat}</p>`);
+});
+
+app.delete("/api/persons/:id", (request, response) => {
+  const id = Number(request.params.id);
+  persons = persons.filter((person) => person.id !== id);
+
+  response.status(204).end();
+});
+
+app.post("/api/persons", (request, response) => {
   const body = request.body;
 
   const nameExist = persons.some((person) => person.name === body.name);
@@ -90,7 +127,7 @@ app.post("/api/persons/", (request, response) => {
   const person = {
     name: body.name,
     number: body.number,
-    id: generateId(),
+    id: randomGenerateId(),
   };
 
   persons = persons.concat(person);
@@ -98,35 +135,9 @@ app.post("/api/persons/", (request, response) => {
   response.json(person);
 });
 
-const getDataAndHourCurrent = () => {
-  const dateAndHours = new Date();
+app.use(unknownEndpoint);
 
-  const dateFormated = dateAndHours.toDateString();
-  const hoursFormated = dateAndHours.toTimeString().split(" ")[0];
-  const timeZone = dateAndHours.toTimeString().split(" ")[1];
-
-  return `${dateFormated} ${hoursFormated} ${timeZone} (${
-    Intl.DateTimeFormat().resolvedOptions().timeZone
-  })`;
-};
-
-app.get("/info", (request, response) => {
-  const numberEntriesPhonebook = persons.length;
-  const localDateFormat = getDataAndHourCurrent();
-
-  response.send(`
-      <h1>Phonebook has info for ${numberEntriesPhonebook} people</h1>
-      <p>${localDateFormat}</p>`);
-});
-
-app.delete("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  persons = persons.filter((person) => person.id !== id);
-
-  response.status(204).end();
-});
-
-const PORT = 3006;
+const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

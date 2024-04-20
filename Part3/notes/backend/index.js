@@ -1,6 +1,8 @@
 const express = require("express");
 const app = express();
 
+app.use(express.json());
+
 let notes = [
   {
     id: 1,
@@ -19,21 +21,6 @@ let notes = [
   },
 ];
 
-const requestLogger = (request, response, next) => {
-  console.log("Method: ", request.method);
-  console.log("Path:   ", request.path);
-  console.log("Body:   ", request.body);
-  console.log("---");
-  next();
-};
-
-app.use(express.json());
-app.use(requestLogger);
-
-const unknownEndPoint = (request, response) => {
-  response.status(404).send({ error: "unknown endpoint" });
-};
-
 app.get("/", (request, response) => {
   response.send("<h1>Hello World!</h1>");
 });
@@ -49,7 +36,7 @@ app.get("/api/notes/:id", (request, response) => {
   if (note) {
     response.json(note);
   } else {
-    response.status(404).send("NOT FOUND");
+    response.status(404).send("Not Found.");
   }
 });
 
@@ -76,7 +63,7 @@ app.post("/api/notes", (request, response) => {
 
   const note = {
     content: body.content,
-    important: Boolean(body.important) || false,
+    important: Boolean(body.inportant) || false,
     id: generateId(),
   };
 
@@ -85,9 +72,7 @@ app.post("/api/notes", (request, response) => {
   response.json(note);
 });
 
-app.use(unknownEndPoint);
-
-const PORT = 3006;
+const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
