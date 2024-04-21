@@ -1,5 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
 
 const app = express();
 
@@ -26,15 +27,10 @@ let persons = [
   },
 ];
 
-// const requestLogger = (request, response, next) => {
-//   console.log("Method:", request.method);
-//   console.log("Path:", request.path);
-//   console.log("Body:", request.body);
-//   console.log("---");
-//   next();
-// };
+app.use(express.static("dist"));
 app.use(express.json());
-// app.use(requestLogger);
+app.use(cors());
+
 app.use(
   morgan(function (tokens, request, response) {
     return [
@@ -137,7 +133,7 @@ app.post("/api/persons", (request, response) => {
 
 app.use(unknownEndpoint);
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
