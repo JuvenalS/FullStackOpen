@@ -5,3 +5,12 @@ content-type: application/json
     "name": "Dan Abramov",
     "number": "12-43-234345"
 }
+
+###
+POST http://localhost:3001/api/persons/ HTTP/1.1
+content-type: application/json
+
+{
+    "name": "Da",
+    "number": "12-43-234345"
+}

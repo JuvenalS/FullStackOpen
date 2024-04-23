@@ -72,21 +72,45 @@ const App = () => {
           });
       }
     } else {
+      // if (newName.length < 3) {
+      //   setErrorMessage("Name must be at least 3 characters long.");
+      //   setTimeout(() => {
+      //     setErrorMessage(null);
+      //   }, 5000);
+      //   return;
+      // }
+
       const personObject = {
         name: newName,
         number: newNumber,
         id: `${persons.length + 1}`,
       };
 
-      personService.create(personObject).then((returnedPerson) => {
-        setPersons(persons.concat(returnedPerson));
-        setSuccessMessage("Person added successfully.");
-        setTimeout(() => {
-          setSuccessMessage(null);
-        }, 5000);
-        setNewName("");
-        setNewNumber("");
-      });
+      personService
+        .create(personObject)
+        .then((returnedPerson) => {
+          setPersons(persons.concat(returnedPerson));
+          setSuccessMessage("Person added successfully.");
+          setTimeout(() => {
+            setSuccessMessage(null);
+          }, 5000);
+          setNewName("");
+          setNewNumber("");
+        })
+        .catch((error) => {
+          if (
+            error.response &&
+            error.response.data &&
+            error.response.data.error
+          ) {
+            setErrorMessage(error.response.data.error);
+          } else {
+            setErrorMessage("An error occurred while processing your request.");
+          }
+          setTimeout(() => {
+            setErrorMessage(null);
+          }, 5000);
+        });
     }
   };
 
